@@ -96,10 +96,12 @@ const { t } = useI18n()
 
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
+// Counter to handle nested element drag events, prevents false dragleave triggers
 let dragCounter = 0
 
 const acceptedTypes = '.docx,.xlsx,.pptx,.key,.pages,.numbers'
 const formats = ['DOCX', 'XLSX', 'PPTX', 'KEY', 'PAGES', 'NUMBERS']
+const SUPPORTED_EXTENSIONS = ['docx', 'xlsx', 'pptx', 'key', 'pages', 'numbers']
 
 function triggerFileInput() {
   fileInputRef.value?.click()
@@ -122,7 +124,9 @@ function handleDragEnter(e: DragEvent) {
 }
 
 function handleDragOver(e: DragEvent) {
-  e.dataTransfer!.dropEffect = 'copy'
+  if (e.dataTransfer) {
+    e.dataTransfer.dropEffect = 'copy'
+  }
 }
 
 function handleDragLeave() {
@@ -138,7 +142,11 @@ function handleDrop(e: DragEvent) {
 
   const file = e.dataTransfer?.files[0]
   if (file) {
-    emit('file-selected', file)
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    if (ext && SUPPORTED_EXTENSIONS.includes(ext)) {
+      emit('file-selected', file)
+    }
+    // Silently ignore unsupported files - user can use file picker for better feedback
   }
 }
 </script>

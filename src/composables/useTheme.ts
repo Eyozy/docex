@@ -4,9 +4,9 @@ import { ref } from 'vue'
 
 type Theme = 'light' | 'dark'
 
-// 全局状态（单例）
-const theme = ref<Theme>('dark')
-const isDark = ref(true)
+// Global state (singleton) - default to light mode
+const theme = ref<Theme>('light')
+const isDark = ref(false)
 let initialized = false
 
 function applyTheme(dark: boolean) {
@@ -31,14 +31,17 @@ function toggleTheme() {
   setTheme(theme.value === 'light' ? 'dark' : 'light')
 }
 
+function isTheme(value: string | null): value is Theme {
+  return value === 'light' || value === 'dark'
+}
+
 function initTheme() {
-  if (initialized) return
-  if (typeof window === 'undefined') return
+  if (initialized || typeof window === 'undefined') return
   initialized = true
 
-  // 从本地存储读取
-  const stored = localStorage.getItem('theme') as Theme | null
-  if (stored && ['light', 'dark'].includes(stored)) {
+  // Read from local storage
+  const stored = localStorage.getItem('theme')
+  if (isTheme(stored)) {
     theme.value = stored
   }
   applyTheme(theme.value === 'dark')

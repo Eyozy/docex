@@ -39,7 +39,7 @@
 
     <!-- File type badge -->
     <div class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/50 backdrop-blur-md text-white/90 text-[10px] font-bold tracking-wider uppercase">
-      {{ getExtension(image.name) }}
+      {{ getExtension(image.name, 4) }}
     </div>
 
     <!-- File name (always visible at bottom) -->
@@ -54,6 +54,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import type { ExtractedImage } from '@/types'
+import { formatSize, getExtension } from '@/utils/format'
 
 defineProps<{
   image: ExtractedImage
@@ -65,15 +66,4 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-function getExtension(filename: string): string {
-  const ext = filename.split('.').pop()?.toUpperCase() || ''
-  return ext.length > 4 ? ext.slice(0, 4) : ext
-}
 </script>

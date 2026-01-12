@@ -115,8 +115,20 @@ function getMimeType(path: string): string {
 /**
  * Main extraction logic
  */
+// Maximum file size: 200MB
+const MAX_FILE_SIZE = 200 * 1024 * 1024
+
 async function extractImages(file: File): Promise<void> {
   try {
+    // Check file size to prevent memory issues
+    if (file.size > MAX_FILE_SIZE) {
+      self.postMessage({
+        type: 'error',
+        message: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB`
+      })
+      return
+    }
+
     const ext = file.name.split('.').pop()?.toLowerCase() || ''
     const mediaPaths = FILE_TYPE_CONFIG[ext]
     const isIWork = ['key', 'pages', 'numbers'].includes(ext)
@@ -139,20 +151,20 @@ async function extractImages(file: File): Promise<void> {
       if (inMediaDir) {
         // iWork specific filtering
         if (isIWork) {
-            const fileName = path.split('/').pop() || '';
-            const fileNameLower = fileName.toLowerCase();
+          const fileName = path.split('/').pop() || ''
+          const fileNameLower = fileName.toLowerCase()
 
-            if (IGNORED_KEYWORDS.some(keyword => fileNameLower.includes(keyword))) {
-                continue;
-            }
+          if (IGNORED_KEYWORDS.some(keyword => fileNameLower.includes(keyword))) {
+            continue
+          }
 
-            if (IWORK_SYSTEM_PATTERNS.some(pattern => pattern.test(fileName))) {
-                continue;
-            }
+          if (IWORK_SYSTEM_PATTERNS.some(pattern => pattern.test(fileName))) {
+            continue
+          }
 
-            if (fileNameLower.endsWith('.pdf')) {
-                continue;
-            }
+          if (fileNameLower.endsWith('.pdf')) {
+            continue
+          }
         }
         imagePaths.push(path)
       }
@@ -204,7 +216,7 @@ async function extractImages(file: File): Promise<void> {
 
       processed++
 
-      if (processed % 5 === 0 || processed === total) {
+      if (total > 0 && (processed % 5 === 0 || processed === total)) {
         self.postMessage({
           type: 'progress',
           percent: Math.round((processed / total) * 100)

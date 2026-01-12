@@ -83,6 +83,7 @@
 import { useI18n } from 'vue-i18n'
 import type { ExtractedImage } from '@/types'
 import { downloadImage } from '@/utils/download'
+import { formatSize, getExtension } from '@/utils/format'
 
 const props = defineProps<{
   isOpen: boolean
@@ -103,15 +104,5 @@ function download() {
   if (props.image) {
     downloadImage(props.image)
   }
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-function getExtension(filename: string): string {
-  return filename.split('.').pop()?.toUpperCase() || ''
 }
 </script>
