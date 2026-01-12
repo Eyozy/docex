@@ -43,7 +43,9 @@ export default {
   },
   footer: {
     copyright: '© 2026',
-    status: 'ALL SYSTEMS LOCAL'
+    status: 'ALL SYSTEMS LOCAL',
+    inspired: 'Inspired by ',
+    appinn: 'Appinn'
   },
   card: {
     download: 'Download',

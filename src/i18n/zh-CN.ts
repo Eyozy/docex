@@ -43,7 +43,9 @@ export default {
   },
   footer: {
     copyright: '© 2026',
-    status: '全部本地处理'
+    status: '全部本地处理',
+    inspired: '灵感来自',
+    appinn: '小众软件'
   },
   card: {
     download: '下载',

@@ -106,9 +106,21 @@
             <span>{{ t('footer.copyright') }}</span>
           </div>
 
-          <div class="flex items-center gap-2 font-medium text-surface-500 dark:text-surface-400">
-            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-subtle"></div>
-            {{ t('footer.status') }}
+          <div class="flex items-center gap-4">
+            <span class="text-surface-400 dark:text-surface-500">
+              {{ t('footer.inspired') }}
+              <a
+                href="https://meta.appinn.net/t/topic/79962"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="link-underline text-surface-500 dark:text-surface-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              >{{ t('footer.appinn') }}</a>
+            </span>
+            <span class="w-1 h-1 rounded-full bg-surface-300 dark:bg-surface-700"></span>
+            <div class="flex items-center gap-2 font-medium text-surface-500 dark:text-surface-400">
+              <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-subtle"></div>
+              {{ t('footer.status') }}
+            </div>
           </div>
         </div>
       </footer>

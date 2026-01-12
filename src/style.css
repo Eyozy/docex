@@ -114,3 +114,24 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 }
+
+/* Link underline animation */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width 0.3s ease;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}

@@ -40,7 +40,7 @@
 
         <!-- GitHub Link -->
         <a
-          href="https://github.com"
+          href="https://github.com/Eyozy/docex"
           target="_blank"
           rel="noopener noreferrer"
           class="btn-ghost flex items-center gap-2 px-3"
@@ -110,7 +110,7 @@
 
           <!-- GitHub Link (Mobile) -->
           <a
-            href="https://github.com"
+            href="https://github.com/Eyozy/docex"
             target="_blank"
             rel="noopener noreferrer"
             class="flex items-center gap-3 px-4 py-3 rounded-xl text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
