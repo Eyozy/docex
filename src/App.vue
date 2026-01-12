@@ -98,16 +98,16 @@
       </main>
 
       <!-- Footer -->
-      <footer class="py-10 mt-auto border-t border-surface-200 dark:border-surface-800">
-        <div class="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-surface-400 dark:text-surface-600">
-          <div class="flex items-center gap-3">
-            <span class="font-semibold text-surface-900 dark:text-surface-200">{{ t('header.title') }}</span>
-            <span class="w-1 h-1 rounded-full bg-surface-300 dark:bg-surface-700"></span>
-            <span>{{ t('footer.copyright') }}</span>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <span class="text-surface-400 dark:text-surface-500">
+      <footer class="py-8 mt-auto border-t border-surface-200 dark:border-surface-800">
+        <div class="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 text-sm text-surface-400 dark:text-surface-500">
+          <!-- Desktop: horizontal layout -->
+          <div class="hidden sm:flex w-full items-center justify-between">
+            <span>
+              {{ t('footer.copyright') }}
+              <span class="mx-1.5">•</span>
+              <span class="text-surface-600 dark:text-surface-400">{{ t('header.title') }}</span>
+            </span>
+            <span>
               {{ t('footer.inspired') }}
               <a
                 href="https://meta.appinn.net/t/topic/79962"
@@ -116,11 +116,24 @@
                 class="link-underline text-surface-500 dark:text-surface-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               >{{ t('footer.appinn') }}</a>
             </span>
-            <span class="w-1 h-1 rounded-full bg-surface-300 dark:bg-surface-700"></span>
-            <div class="flex items-center gap-2 font-medium text-surface-500 dark:text-surface-400">
-              <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-subtle"></div>
-              {{ t('footer.status') }}
-            </div>
+          </div>
+
+          <!-- Mobile: vertical stacked layout -->
+          <div class="flex sm:hidden flex-col items-center gap-2 text-center">
+            <span>
+              {{ t('footer.copyright') }}
+              <span class="mx-1.5">•</span>
+              <span class="text-surface-600 dark:text-surface-400">{{ t('header.title') }}</span>
+            </span>
+            <span>
+              {{ t('footer.inspired') }}
+              <a
+                href="https://meta.appinn.net/t/topic/79962"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="link-underline text-surface-500 dark:text-surface-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              >{{ t('footer.appinn') }}</a>
+            </span>
           </div>
         </div>
       </footer>
