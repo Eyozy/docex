@@ -11,5 +11,17 @@ export default defineConfig({
   },
   worker: {
     format: 'es'
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['vue', 'vue-i18n'],
+          'jszip': ['jszip']
+        }
+      }
+    },
+    cssCodeSplit: true,
+    minify: 'esbuild'
   }
 })
