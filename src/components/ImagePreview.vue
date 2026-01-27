@@ -13,31 +13,25 @@
       @click="close"
       @keydown.escape="close"
     >
-      <!-- Main Content -->
       <div
         class="relative w-full max-w-6xl h-full flex flex-col items-center justify-center animate-scale-in"
         @click.stop
       >
-        <!-- Header controls -->
         <div class="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4">
-          <!-- Image info -->
           <h2 class="text-white/90 text-lg font-medium truncate max-w-[50%] drop-shadow-md">
             {{ image?.name }}
           </h2>
 
-          <!-- Action buttons -->
           <div class="flex items-center gap-3">
-            <!-- Download Button -->
             <button
               @click="download"
-              class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors duration-200 backdrop-blur-md border border-white/10"
+              class="w-10 h-10 sm:w-auto sm:px-4 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors duration-200 backdrop-blur-md border border-white/10 flex items-center justify-center sm:justify-start sm:gap-2"
               :title="t('preview.download')"
             >
-              <span class="material-symbols-outlined text-xl">download</span>
+              <span class="material-symbols-outlined text-xl sm:text-lg">download</span>
               <span class="hidden sm:inline text-sm font-medium">{{ t('preview.download') }}</span>
             </button>
 
-            <!-- Close Button -->
             <button
               @click="close"
               class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors duration-200 backdrop-blur-md border border-white/10"
@@ -48,7 +42,6 @@
           </div>
         </div>
 
-        <!-- Image Container -->
         <div class="w-full h-full flex items-center justify-center overflow-hidden py-16">
           <img
             :src="image?.url"
@@ -57,18 +50,14 @@
           />
         </div>
 
-        <!-- Footer info -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 sm:gap-6 px-4 sm:px-6 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white/70 text-sm whitespace-nowrap max-w-[90vw] overflow-hidden">
-          <!-- File type -->
           <div class="flex items-center gap-2 flex-shrink-0">
             <span class="material-symbols-outlined text-lg">description</span>
             <span class="font-mono uppercase">{{ getExtension(image?.name || '') }}</span>
           </div>
 
-          <!-- Divider -->
           <div class="w-px h-4 bg-white/20"></div>
 
-          <!-- Size -->
           <div class="flex items-center gap-2 flex-shrink-0">
             <span class="material-symbols-outlined text-lg">storage</span>
             <span class="font-mono">{{ formatSize(image?.size || 0) }}</span>

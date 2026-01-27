@@ -6,27 +6,23 @@
     @dragleave.prevent="handleDragLeave"
     @drop.prevent="handleDrop"
   >
-    <!-- Main Drop Area -->
     <div
-      class="relative overflow-hidden transition-all duration-300 cursor-pointer rounded-3xl border-2 border-dashed bg-white dark:bg-surface-900"
+      class="relative overflow-hidden transition-all duration-200 cursor-pointer rounded-xl border-2 border-dashed bg-white dark:bg-zinc-900"
       :class="[
         isDragging
-          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
-          : 'border-surface-300 dark:border-surface-700 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-surface-50 dark:hover:bg-surface-800'
+          ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20'
+          : 'border-zinc-200 dark:border-zinc-800 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
       ]"
       @click="!isProcessing && triggerFileInput()"
     >
-      
-      <!-- Content -->
       <div class="relative z-10 flex flex-col items-center justify-center gap-6 px-6 py-12 sm:py-16 text-center">
-        <!-- Icon Circle -->
-        <div 
-            class="w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300"
-            :class="[
-                isDragging || isProcessing
-                ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
-                : 'bg-surface-100 text-surface-500 dark:bg-surface-800 dark:text-surface-400 group-hover:scale-110 group-hover:text-primary-600 dark:group-hover:text-primary-400'
-            ]"
+        <div
+          class="w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-200"
+          :class="[
+            isDragging || isProcessing
+              ? 'bg-primary-100 text-primary-600 dark:bg-primary-950/30 dark:text-primary-400 scale-110'
+              : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400 group-hover:scale-110 group-hover:text-primary-600 dark:group-hover:text-primary-400'
+          ]"
         >
           <span
             class="material-symbols-outlined text-4xl"
@@ -36,39 +32,37 @@
           </span>
         </div>
 
-        <!-- Text Content -->
         <div class="max-w-md space-y-2">
-          <h3 class="text-xl sm:text-2xl font-semibold text-surface-900 dark:text-white">
+          <h3 class="text-xl sm:text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
             {{ isProcessing ? t('dropzone.processing') : (isDragging ? t('dropzone.drop') : t('dropzone.title')) }}
           </h3>
-          <!-- Description removed for minimalism -->
+          <p v-if="!isProcessing" class="text-zinc-500 dark:text-zinc-400 text-sm">
+            {{ t('dropzone.description') }}
+          </p>
         </div>
 
-        <!-- Button -->
         <button
           @click.stop="triggerFileInput"
           :disabled="isProcessing"
           class="btn-primary flex items-center gap-2 mt-2"
         >
-          <span class="material-symbols-outlined text-xl">
-            {{ isProcessing ? 'hourglass_top' : 'add_circle' }}
+          <span class="material-symbols-outlined">
+            {{ isProcessing ? 'hourglass_top' : 'upload_file' }}
           </span>
           <span>{{ t('dropzone.button') }}</span>
         </button>
 
-        <!-- Supported formats badge -->
-        <div class="flex flex-wrap items-center justify-center gap-2 mt-4 opacity-60 hover:opacity-100 transition-opacity">
+        <div v-if="!isProcessing" class="flex flex-wrap items-center justify-center gap-1.5 mt-3 opacity-50 hover:opacity-100 transition-opacity">
           <span
             v-for="format in formats"
             :key="format"
-            class="px-2 py-1 rounded text-xs font-mono font-medium text-surface-500 dark:text-surface-400 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700"
+            class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800"
           >
             {{ format }}
           </span>
         </div>
       </div>
 
-      <!-- Hidden file input -->
       <input
         ref="fileInputRef"
         type="file"
@@ -96,12 +90,11 @@ const { t } = useI18n()
 
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
-// Counter to handle nested element drag events, prevents false dragleave triggers
 let dragCounter = 0
 
-const acceptedTypes = '.docx,.xlsx,.pptx,.key,.pages,.numbers'
-const formats = ['DOCX', 'XLSX', 'PPTX', 'KEY', 'PAGES', 'NUMBERS']
-const SUPPORTED_EXTENSIONS = ['docx', 'xlsx', 'pptx', 'key', 'pages', 'numbers']
+const acceptedTypes = '.docx,.xlsx,.pptx,.key,.pages,.numbers,.epub,.mobi,.azw3'
+const formats = ['DOCX', 'XLSX', 'PPTX', 'KEY', 'PAGES', 'NUMBERS', 'EPUB', 'MOBI', 'AZW3']
+const SUPPORTED_EXTENSIONS = ['docx', 'xlsx', 'pptx', 'key', 'pages', 'numbers', 'epub', 'mobi', 'azw3']
 
 function triggerFileInput() {
   fileInputRef.value?.click()
@@ -116,6 +109,12 @@ function handleFileSelect(event: Event) {
   if (target) target.value = ''
 }
 
+function handleDataTransfer(dataTransfer: DataTransfer | null) {
+  if (dataTransfer) {
+    dataTransfer.dropEffect = 'copy'
+  }
+}
+
 function handleDragEnter(e: DragEvent) {
   dragCounter++
   if (e.dataTransfer?.types.includes('Files')) {
@@ -124,9 +123,7 @@ function handleDragEnter(e: DragEvent) {
 }
 
 function handleDragOver(e: DragEvent) {
-  if (e.dataTransfer) {
-    e.dataTransfer.dropEffect = 'copy'
-  }
+  handleDataTransfer(e.dataTransfer)
 }
 
 function handleDragLeave() {
@@ -146,7 +143,6 @@ function handleDrop(e: DragEvent) {
     if (ext && SUPPORTED_EXTENSIONS.includes(ext)) {
       emit('file-selected', file)
     }
-    // Silently ignore unsupported files - user can use file picker for better feedback
   }
 }
 </script>
