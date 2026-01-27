@@ -54,7 +54,7 @@
 
         <div v-if="!isProcessing" class="flex flex-wrap items-center justify-center gap-1.5 mt-3 opacity-50 hover:opacity-100 transition-opacity">
           <span
-            v-for="format in formats"
+            v-for="format in FORMATS"
             :key="format"
             class="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800"
           >
@@ -67,7 +67,7 @@
         ref="fileInputRef"
         type="file"
         class="hidden"
-        :accept="acceptedTypes"
+        :accept="ACCEPTED_TYPES"
         @change="handleFileSelect"
       />
     </div>
@@ -92,9 +92,9 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
 let dragCounter = 0
 
-const acceptedTypes = '.docx,.xlsx,.pptx,.key,.pages,.numbers,.epub,.mobi,.azw3'
-const formats = ['DOCX', 'XLSX', 'PPTX', 'KEY', 'PAGES', 'NUMBERS', 'EPUB', 'MOBI', 'AZW3']
+const ACCEPTED_TYPES = '.docx,.xlsx,.pptx,.key,.pages,.numbers,.epub,.mobi,.azw3'
 const SUPPORTED_EXTENSIONS = ['docx', 'xlsx', 'pptx', 'key', 'pages', 'numbers', 'epub', 'mobi', 'azw3']
+const FORMATS = ['DOCX', 'XLSX', 'PPTX', 'KEY', 'PAGES', 'NUMBERS', 'EPUB', 'MOBI', 'AZW3']
 
 function triggerFileInput() {
   fileInputRef.value?.click()
@@ -109,12 +109,6 @@ function handleFileSelect(event: Event) {
   if (target) target.value = ''
 }
 
-function handleDataTransfer(dataTransfer: DataTransfer | null) {
-  if (dataTransfer) {
-    dataTransfer.dropEffect = 'copy'
-  }
-}
-
 function handleDragEnter(e: DragEvent) {
   dragCounter++
   if (e.dataTransfer?.types.includes('Files')) {
@@ -122,8 +116,8 @@ function handleDragEnter(e: DragEvent) {
   }
 }
 
-function handleDragOver(e: DragEvent) {
-  handleDataTransfer(e.dataTransfer)
+function handleDragOver() {
+  // Drag over handled by preventDefault on the element
 }
 
 function handleDragLeave() {

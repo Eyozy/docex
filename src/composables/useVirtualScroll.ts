@@ -93,7 +93,6 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
     visibleItems,
     totalHeight,
     offsetTop,
-    handleScroll,
-    visibleRange
+    handleScroll
   }
 }

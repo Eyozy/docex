@@ -37,14 +37,9 @@ export function useToast() {
     }
   }
 
-  function clearAll() {
-    toasts.value = []
-  }
-
   return {
     toasts,
     addToast,
     removeToast,
-    clearAll,
   }
 }
