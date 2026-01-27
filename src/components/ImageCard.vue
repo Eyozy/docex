@@ -78,7 +78,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// 组件卸载时释放 Blob URL 防止内存泄漏
 onUnmounted(() => {
   if (props.image.url && props.image.url.startsWith('blob:')) {
     URL.revokeObjectURL(props.image.url)

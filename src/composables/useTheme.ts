@@ -1,10 +1,9 @@
-// useTheme: 暗色模式管理（全局单例）
+// useTheme: Dark mode management (global singleton)
 
 import { ref } from 'vue'
 
 type Theme = 'light' | 'dark'
 
-// Global state (singleton) - default to light mode
 const theme = ref<Theme>('light')
 const isDark = ref(false)
 let initialized = false
@@ -39,7 +38,6 @@ function initTheme() {
   if (initialized || typeof window === 'undefined') return
   initialized = true
 
-  // Read from local storage
   const stored = localStorage.getItem('theme')
   if (isTheme(stored)) {
     theme.value = stored
@@ -47,7 +45,6 @@ function initTheme() {
   applyTheme(theme.value === 'dark')
 }
 
-// 立即初始化（浏览器环境）
 if (typeof window !== 'undefined') {
   initTheme()
 }

@@ -1,18 +1,17 @@
-// useVirtualScroll: 虚拟滚动逻辑
+// useVirtualScroll: Virtual scroll logic
 
 import { ref, computed, onMounted, onUnmounted, type Ref } from 'vue'
 
 interface VirtualScrollOptions<T> {
   containerRef: Ref<HTMLElement | null>
   items: Ref<T[]>
-  itemHeight: number   // 单行高度（含间距）
-  columns: Ref<number> // 列数
-  buffer?: number      // 缓冲行数
+  itemHeight: number
+  columns: Ref<number>
+  buffer?: number
 }
 
-// 滚动事件节流，避免频繁更新
 let lastScrollTime = 0
-const SCROLL_THROTTLE = 16 // 60fps
+const SCROLL_THROTTLE = 16
 
 export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
   const { containerRef, items, itemHeight, columns, buffer = 2 } = options
@@ -20,9 +19,6 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
   const scrollTop = ref(0)
   const containerHeight = ref(0)
 
-  /**
-   * 计算可视范围
-   */
   const visibleRange = computed(() => {
     const startRow = Math.max(0, Math.floor(scrollTop.value / itemHeight) - buffer)
     const visibleRows = Math.ceil(containerHeight.value / itemHeight) + buffer * 2
@@ -36,31 +32,19 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
     }
   })
 
-  /**
-   * 可视区域内的项目
-   */
   const visibleItems = computed(() => {
     return items.value.slice(visibleRange.value.start, visibleRange.value.end)
   })
 
-  /**
-   * 总高度（用于撑开滚动容器）
-   */
   const totalHeight = computed(() => {
     const totalRows = Math.ceil(items.value.length / columns.value)
     return totalRows * itemHeight
   })
 
-  /**
-   * 顶部偏移量（定位可见元素）
-   */
   const offsetTop = computed(() => {
     return visibleRange.value.startRow * itemHeight
   })
 
-  /**
-   * 处理滚动事件（节流优化）
-   */
   function handleScroll(e: Event) {
     const now = Date.now()
     if (now - lastScrollTime < SCROLL_THROTTLE) {
@@ -72,9 +56,6 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
     scrollTop.value = target.scrollTop
   }
 
-  /**
-   * 更新容器高度（防抖优化）
-   */
   let resizeTimeout: ReturnType<typeof setTimeout> | null = null
   function updateContainerHeight() {
     if (resizeTimeout) {
@@ -92,7 +73,6 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
   onMounted(() => {
     updateContainerHeight()
 
-    // 监听容器大小变化
     if (containerRef.value) {
       resizeObserver = new ResizeObserver(updateContainerHeight)
       resizeObserver.observe(containerRef.value)

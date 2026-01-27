@@ -2,10 +2,8 @@ const MOBI_MAGIC = new Uint8Array([0x42, 0x4F, 0x4F, 0x4B, 0x4D, 0x4F, 0x42, 0x4
 
 const DRM_SIGNATURES = [
   new Uint8Array([0x54, 0x54, 0x4C, 0x6C]),
-  new Uint8Array([0x50, 0x4B]),
 ]
 
-// 防止内存溢出，限制最大提取图片数量
 const MAX_IMAGES = 1000
 
 export function detectMobiDRM(buffer: ArrayBuffer): boolean {
@@ -119,7 +117,6 @@ function extractPng(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
   while (pos < view.length - 12) {
     const chunkLength = (view[pos] << 24) | (view[pos + 1] << 16) | (view[pos + 2] << 8) | view[pos + 3]
 
-    // 防止恶意大 chunk 导致越界
     if (chunkLength > 100_000_000 || pos + 12 + chunkLength > view.length) {
       break
     }
@@ -139,7 +136,6 @@ function extractPng(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
 function extractGif(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
   const view = new Uint8Array(buffer)
 
-  // 边界检查：GIF 头部至少需要 11 字节
   if (offset + 10 >= view.length) return null
 
   let endOffset = offset + 6
@@ -165,7 +161,6 @@ function extractGif(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
       if (endOffset < view.length) endOffset++
     } else if (view[endOffset] === 0x2C) {
       endOffset += 10
-      // 边界检查：确保有足够字节访问 imagePacked
       if (endOffset < view.length) {
         const imagePacked = view[endOffset]
         const hasLocalColorTable = (imagePacked & 0x80) !== 0
@@ -183,7 +178,6 @@ function extractGif(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
       endOffset++
     }
 
-    // 防止无限循环的安全检查
     if (endOffset > view.length * 2) break
   }
 
