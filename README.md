@@ -1,29 +1,56 @@
 # DocEx
 
-A privacy-first document image extractor that runs entirely in your browser. Extract images from Word, Excel, PowerPoint, Keynote, Pages, Numbers, and eBooks without uploading files to any server.
+A privacy-first document image extractor that runs entirely in your browser. Extract images from documents and eBooks without uploading files to any server.
 
-## ✨ Features
+## Why DocEx?
 
-- **🔒 100% Private**: All processing happens locally in your browser using Web Workers. Your files never leave your device.
-- **📚 Broad Format Support**:
-  - Microsoft Office: Word (.docx), PowerPoint (.pptx), Excel (.xlsx)
-  - Apple iWork: Keynote (.key), Pages (.pages), Numbers (.numbers)
-  - eBooks: EPUB (.epub), MOBI (.mobi), AZW3 (.azw3)
-- **🎯 Smart Filtering**: Automatically filters out icons, thumbnails, and placeholders (< 10KB) to keep only meaningful content images.
-- **🖼️ Lossless Quality**: Extracts original image files directly from document structure without re-compression.
-- **🎨 Modern UI**: Built with Vue 3 and Tailwind CSS, featuring light/dark mode and responsive design.
-- **🔔 Toast Notifications**: Real-time feedback for extraction status and errors.
-- **🌐 Internationalization**: Built-in support for English and Chinese.
-- **⚡ High Performance**: Multi-threaded processing with Web Workers keeps the UI responsive.
-- **🛡️ DRM Detection**: Detects and warns about DRM-protected eBooks.
+**Security**: Your files never leave your device. All processing happens locally in your browser using Web Workers.
 
-## 🚀 Quick Start
+**Performance**: Multi-threaded processing keeps the UI responsive even with large files.
 
-### Prerequisites
+**Simplicity**: No installation required. Just drop your files and extract images.
 
-- Node.js 16+ and npm/yarn/pnpm
+**Quality**: Lossless extraction - images are extracted directly from the document structure without re-compression.
 
-### Installation
+## Features
+
+### Privacy & Security
+
+- **Zero Server Upload**: All file processing happens client-side. No data leaves your device.
+- **No Tracking**: No analytics, cookies, or data collection.
+- **Open Source**: Full transparency - inspect the code yourself.
+
+### Format Support
+
+- **Microsoft Office**: Word (`.docx`), PowerPoint (`.pptx`), Excel (`.xlsx`)
+- **Apple iWork**: Keynote (`.key`), Pages (`.pages`), Numbers (`.numbers`)
+- **eBooks**: EPUB (`.epub`), MOBI (`.mobi`), AZW3 (`.azw3`)
+
+**Limitations**: Older Office formats (`.doc`, `.ppt`, `.xls`) are not supported. DRM-protected eBooks cannot be processed.
+
+### Image Processing
+
+- **Smart Filtering**: Automatically filters out icons, thumbnails, and placeholders (< 10KB)
+- **Lossless Extraction**: Original image quality preserved - no re-compression
+- **Batch Download**: Download all images as a ZIP file with progress tracking
+
+### User Experience
+
+- **Modern UI**: Built with Vue 3 and Tailwind CSS
+- **Dark Mode**: Full light/dark theme support with system preference detection
+- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Internationalization**: Built-in support for English and Chinese
+- **Real-time Feedback**: Toast notifications for extraction status and errors
+- **Image Preview**: Lightbox preview for extracted images
+
+## Quick Start
+
+**Prerequisites**
+
+- Node.js 18+
+- npm 9+ or yarn 1.22+ or pnpm 8+
+
+**Installation**
 
 ```bash
 # Clone the repository
@@ -33,108 +60,96 @@ cd docex
 # Install dependencies
 npm install
 
-# Start development server
+# Start the development server
 npm run dev
 ```
 
-Visit `http://localhost:5173` to see the app in action.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-### Build for Production
+**Production Build**
 
 ```bash
+# Build for production
 npm run build
+
+# Preview the production build locally
 npm run preview
 ```
 
-## 📁 Project Structure
+The built files will be in the `dist/` directory, ready for deployment to any static hosting service.
+
+## Project Structure
 
 ```
 docex/
 ├── src/
-│   ├── components/
-│   │   ├── BrandLogo.vue       # Application branding
-│   │   ├── DropZone.vue        # File upload interface
-│   │   ├── ImageCard.vue       # Individual image display
-│   │   ├── ImagePreview.vue    # Lightbox preview
-│   │   └── ToastContainer.vue  # Notification system
-│   ├── composables/
-│   │   ├── useExtractor.ts     # Image extraction logic
-│   │   └── useToast.ts         # Toast notification manager
-│   ├── workers/
-│   │   └── extractor.worker.ts # Background file processing
-│   ├── utils/
-│   │   ├── ebookParser.ts      # MOBI/AZW3 parser
-│   │   └── fileTypes.ts        # MIME type definitions
-│   ├── types/
-│   │   └── index.ts            # TypeScript type definitions
-│   ├── i18n/
-│   │   ├── en-US.ts            # English translations
-│   │   └── zh-CN.ts            # Chinese translations
-│   ├── App.vue                 # Root component
-│   └── main.ts                 # Application entry
-├── public/
-│   └── favicon.svg             # Application icon
-└── index.html                  # HTML template
+│   ├── components/               # Vue components
+│   │   ├── BrandLogo.vue         # Application branding component
+│   │   ├── DropZone.vue          # File upload drag-drop area
+│   │   ├── ImageCard.vue         # Individual image card display
+│   │   ├── ImagePreview.vue      # Lightbox preview modal
+│   │   ├── ResultGallery.vue     # Virtual scrolling gallery
+│   │   ├── ToastContainer.vue    # Toast notification container
+│   │   └── ToastMessage.vue      # Individual toast message
+│   ├── composables/              # Vue composables (reusable logic)
+│   │   ├── useExtractor.ts       # Image extraction orchestration
+│   │   ├── useToast.ts           # Toast notification management
+│   │   ├── useVirtualScroll.ts   # Virtual scrolling implementation
+│   │   └── useTheme.ts           # Dark mode theme management
+│   ├── workers/                  # Web Workers (background processing)
+│   │   └── extractor.worker.ts   # File extraction worker
+│   ├── utils/                    # Utility functions
+│   │   ├── ebookParser.ts        # MOBI/AZW3 parser with DRM detection
+│   │   ├── download.ts           # Download and ZIP generation
+│   │   └── format.ts             # File size formatting utilities
+│   ├── types/                    # TypeScript type definitions
+│   │   └── index.ts              # Shared type declarations
+│   ├── i18n/                     # Internationalization
+│   │   ├── en-US.ts              # English translations
+│   │   └── zh-CN.ts              # Chinese translations
+│   ├── App.vue                   # Root application component
+│   └── main.ts                   # Application entry point
+├── public/                       # Static assets
+│   └── favicon.svg               # Application favicon
+├── index.html                    # HTML template
+├── package.json                  # Dependencies and scripts
+├── tsconfig.json                 # TypeScript configuration
+├── vite.config.ts               # Vite build configuration
+└── README.md
 ```
 
-## 🎯 Supported Formats
-
-| Format | Extension | Notes |
-|--------|-----------|-------|
-| Word | `.docx` | Modern Office Open XML format |
-| PowerPoint | `.pptx` | Modern Office Open XML format |
-| Excel | `.xlsx` | Modern Office Open XML format |
-| Keynote | `.key` | Apple iWork format |
-| Pages | `.pages` | Apple iWork format |
-| Numbers | `.numbers` | Apple iWork format |
-| EPUB | `.epub` | Standard eBook format |
-| MOBI | `.mobi` | Amazon Kindle format (legacy) |
-| AZW3 | `.azw3` | Amazon Kindle format |
-
-**Note**: Older Office formats (`.doc`, `.ppt`, `.xls`) are not supported. DRM-protected eBooks cannot be processed.
-
-## 🔐 Privacy & Security
-
-- **Zero Server Upload**: All file processing happens in your browser.
-- **No Analytics**: No tracking, cookies, or data collection.
-- **Open Source**: Full transparency - inspect the code yourself.
-- **Client-Side Only**: Static site that can be hosted anywhere or run locally.
-
-## 🛠️ Development
-
-### Project Commands
-
-```bash
-# Install dependencies
-npm install
-
-# Start dev server with hot reload
-npm run dev
-
-# Type-check and build for production
-npm run build
-
-# Preview production build locally
-npm run preview
-```
+## Development
 
 ### Adding New Format Support
 
-1. Add file signature detection in `src/workers/extractor.worker.ts`
-2. Implement extraction logic in the appropriate parser
-3. Add MIME types to `src/utils/fileTypes.ts`
-4. Update UI translations in `src/i18n/`
+To add support for a new file format:
 
-## 🤝 Contributing
+1. Add file signature detection in `src/workers/extractor.worker.ts`
+2. Implement the extraction logic in the appropriate parser
+3. Add MIME types to `src/utils/fileTypes.ts`
+4. Update UI translations in `src/i18n/en-US.ts` and `zh-CN.ts`
+5. Add the format extension to accepted types in `src/components/DropZone.vue`
+
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-[MIT License](LICENSE)
+## License
 
-## 🙏 Acknowledgments
+MIT License - see the [LICENSE](LICENSE) file for details.
 
-- Built with [Vue 3](https://vuejs.org/)
-- Powered by [JSZip](https://stuk.github.io/jszip/) for archive handling
-- Styled with [Tailwind CSS](https://tailwindcss.com/)
+## Acknowledgments
+
+Built with:
+
+- [Vue 3](https://vuejs.org/) - Progressive JavaScript framework
+- [Vite](https://vitejs.dev/) - Next generation build tool
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [JSZip](https://stuk.github.io/jszip/) - ZIP file creation
+- [Vue I18n](https://vue-i18n.intlify.dev/) - Internationalization plugin
