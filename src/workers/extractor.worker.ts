@@ -1,54 +1,47 @@
-// Web Worker: Document Image Extraction
-// Runs in a separate thread to prevent blocking the main UI
-
 import JSZip from 'jszip'
+import { detectMobiDRM, parseMobiImages, detectAZW3DRM, parseAZW3Images } from '@/utils/ebookParser'
 
-// File type configuration
 const FILE_TYPE_CONFIG: Record<string, string[]> = {
   docx: ['word/media/'],
   xlsx: ['xl/media/'],
   pptx: ['ppt/media/'],
-  // iWork formats: Images are typically in the 'Data' directory
   key: ['Data/'],
   pages: ['Data/'],
-  numbers: ['Data/']
+  numbers: ['Data/'],
+  epub: ['OEBPS/images/', 'EPUB/images/', 'images/', 'Images/', 'OPS/images/']
 }
 
-// Keywords to ignore (icons, placeholders, shapes, etc.)
 const IGNORED_KEYWORDS = [
   'preview', 'thumbnail', 'icon', 'poster', 'shape',
   'blank', 'placeholder', 'template', 'mask', 'shadow',
   'gradient', 'pattern', 'tile', 'stroke', 'fill',
   'bullet', 'arrow', 'line', 'rect', 'oval', 'star',
   'callout', 'connector', 'brace', 'bracket', 'frame',
-  'background', 'watermark', 'logo', 'badge', 'symbol'
+  'background', 'watermark', 'logo', 'badge', 'symbol',
+  'cover'
 ]
 
-// iWork system generated file patterns
 const IWORK_SYSTEM_PATTERNS = [
-  /^mt-[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}/i,  // mt-UUID (templates/thumbnails)
-  /^st-[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}/i,  // st-UUID (slide thumbnails)
-  /^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i,    // Pure UUID
-  /^tile-/i,                    // tile- prefix
-  /^sf-/i,                      // sf- system files
-  /^_/,                         // Underscore prefix
-  /^\./,                        // Dot prefix
+  /^mt-[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}/i,
+  /^st-[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}/i,
+  /^[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}$/i,
+  /^tile-/i,
+  /^sf-/i,
+  /^_/,
+  /^\./,
   /dropshadow/i,
   /reflection/i,
-  /^image-/i,                   // iWork generated image-xxx
-  /-small-\d+\./i,              // Small thumbnails
+  /^image-/i,
+  /-small-\d+\./i,
   /^blankMoviePosterImage/i,
 ]
 
-// Minimum image size threshold (bytes) to filter out UI elements
-const MIN_IMAGE_SIZE = 10000  // 10KB
+const MIN_IMAGE_SIZE = 10000
 
-// Supported extensions
 const IMAGE_EXTENSIONS = new Set([
   'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff', 'tif', 'svg', 'emf', 'wmf'
 ])
 
-// Magic numbers for accurate type detection
 const IMAGE_MAGIC_NUMBERS: Array<{ bytes: number[]; type: string; ext: string }> = [
   { bytes: [0x89, 0x50, 0x4E, 0x47], type: 'image/png', ext: 'png' },
   { bytes: [0xFF, 0xD8, 0xFF], type: 'image/jpeg', ext: 'jpg' },
@@ -56,9 +49,6 @@ const IMAGE_MAGIC_NUMBERS: Array<{ bytes: number[]; type: string; ext: string }>
   { bytes: [0x42, 0x4D], type: 'image/bmp', ext: 'bmp' },
 ]
 
-/**
- * Detect image type via magic numbers
- */
 function detectImageType(buffer: ArrayBuffer): { type: string; ext: string } | null {
   const bytes = new Uint8Array(buffer.slice(0, 12))
 
@@ -73,27 +63,20 @@ function detectImageType(buffer: ArrayBuffer): { type: string; ext: string } | n
     if (match) return { type: magic.type, ext: magic.ext }
   }
 
-  // Check for WEBP (RIFF....WEBP)
-  if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) {
-    if (bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) {
-      return { type: 'image/webp', ext: 'webp' }
-    }
+  const isRIFF = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46
+  const isWEBP = bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
+  if (isRIFF && isWEBP) {
+    return { type: 'image/webp', ext: 'webp' }
   }
 
   return null
 }
 
-/**
- * Check if file is an image based on extension
- */
 function isImageFile(path: string): boolean {
   const ext = path.split('.').pop()?.toLowerCase() || ''
   return IMAGE_EXTENSIONS.has(ext)
 }
 
-/**
- * Get MIME type based on extension
- */
 function getMimeType(path: string): string {
   const ext = path.split('.').pop()?.toLowerCase() || ''
   const mimeMap: Record<string, string> = {
@@ -112,15 +95,45 @@ function getMimeType(path: string): string {
   return mimeMap[ext] || 'application/octet-stream'
 }
 
-/**
- * Main extraction logic
- */
-// Maximum file size: 200MB
 const MAX_FILE_SIZE = 200 * 1024 * 1024
+
+async function extractImagesFromEbook(file: File, ext: string): Promise<void> {
+  const buffer = await file.arrayBuffer()
+
+  const detectDRM = ext === 'mobi' ? detectMobiDRM : detectAZW3DRM
+  const parseImages = ext === 'mobi' ? parseMobiImages : parseAZW3Images
+
+  if (detectDRM(buffer)) {
+    self.postMessage({ type: 'warning', message: 'DRM detected. Please remove DRM before extracting images.' })
+    return
+  }
+
+  const imageBuffers = parseImages(buffer)
+  const total = imageBuffers.length
+  let processed = 0
+
+  for (const imgBuffer of imageBuffers) {
+    const detected = detectImageType(imgBuffer)
+    if (detected) {
+      processed++
+      self.postMessage({
+        type: 'image',
+        data: imgBuffer,
+        name: `image_${processed}.${detected.ext}`,
+        mimeType: detected.type
+      }, [imgBuffer])
+    }
+
+    if (total > 0 && (processed % 5 === 0 || processed === total)) {
+      self.postMessage({ type: 'progress', percent: Math.round((processed / total) * 100) })
+    }
+  }
+
+  self.postMessage({ type: 'complete', total: processed })
+}
 
 async function extractImages(file: File): Promise<void> {
   try {
-    // Check file size to prevent memory issues
     if (file.size > MAX_FILE_SIZE) {
       self.postMessage({
         type: 'error',
@@ -130,6 +143,12 @@ async function extractImages(file: File): Promise<void> {
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() || ''
+
+    if (ext === 'mobi' || ext === 'azw3') {
+      await extractImagesFromEbook(file, ext)
+      return
+    }
+
     const mediaPaths = FILE_TYPE_CONFIG[ext]
     const isIWork = ['key', 'pages', 'numbers'].includes(ext)
 
@@ -149,23 +168,21 @@ async function extractImages(file: File): Promise<void> {
       const inMediaDir = mediaPaths.some(mediaPath => path.startsWith(mediaPath))
 
       if (inMediaDir) {
-        // iWork specific filtering
-        if (isIWork) {
-          const fileName = path.split('/').pop() || ''
-          const fileNameLower = fileName.toLowerCase()
+        const fileName = path.split('/').pop() || ''
+        const fileNameLower = fileName.toLowerCase()
 
-          if (IGNORED_KEYWORDS.some(keyword => fileNameLower.includes(keyword))) {
-            continue
-          }
-
-          if (IWORK_SYSTEM_PATTERNS.some(pattern => pattern.test(fileName))) {
-            continue
-          }
-
-          if (fileNameLower.endsWith('.pdf')) {
-            continue
-          }
+        if (IGNORED_KEYWORDS.some(keyword => fileNameLower.includes(keyword))) {
+          continue
         }
+
+        if (isIWork && IWORK_SYSTEM_PATTERNS.some(pattern => pattern.test(fileName))) {
+          continue
+        }
+
+        if (fileNameLower.endsWith('.pdf')) {
+          continue
+        }
+
         imagePaths.push(path)
       }
     }
@@ -177,7 +194,6 @@ async function extractImages(file: File): Promise<void> {
       const fileData = content.files[path]
       const buffer = await fileData.async('arraybuffer')
 
-      // Filter small images (likely UI elements)
       if (isIWork && buffer.byteLength < MIN_IMAGE_SIZE) {
         processed++
         continue
@@ -185,14 +201,12 @@ async function extractImages(file: File): Promise<void> {
 
       let mimeType = ''
       let detectedExt = ''
-      
-      // 1. Try magic number detection
+
       const detected = detectImageType(buffer)
       if (detected) {
         mimeType = detected.type
         detectedExt = detected.ext
       } else {
-        // 2. Fallback to extension
         if (isImageFile(path)) {
           mimeType = getMimeType(path)
           detectedExt = path.split('.').pop()?.toLowerCase() || ''
@@ -200,7 +214,7 @@ async function extractImages(file: File): Promise<void> {
       }
 
       let fileName = path.split('/').pop() || `image_${processed}`
-      
+
       if (detectedExt && !fileName.includes('.')) {
          fileName = `${fileName}.${detectedExt}`
       }
@@ -211,7 +225,7 @@ async function extractImages(file: File): Promise<void> {
           data: buffer,
           name: fileName,
           mimeType
-        }, [buffer]) // Transferable
+        }, [buffer])
       }
 
       processed++

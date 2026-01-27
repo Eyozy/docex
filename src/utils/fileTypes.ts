@@ -1,29 +1,29 @@
-// File type utilities
-
 import type { FileTypeInfo, SupportedFileType } from '@/types'
 
-// Map extensions to their media directory paths
 const FILE_TYPE_CONFIG: Record<SupportedFileType, string[]> = {
   docx: ['word/media/'],
   xlsx: ['xl/media/'],
   pptx: ['ppt/media/'],
-  key: ['Data/', 'Images/'],      // Keynote
-  pages: ['Data/', 'Images/'],    // Pages
-  numbers: ['Data/', 'Images/']   // Numbers
+  key: ['Data/', 'Images/'],
+  pages: ['Data/', 'Images/'],
+  numbers: ['Data/', 'Images/'],
+  epub: ['OEBPS/images/', 'EPUB/images/', 'images/', 'Images/', 'OPS/images/'],
+  mobi: [],
+  azw3: []
 }
 
 const IMAGE_MIME_TYPES: Record<string, string> = {
-  'png': 'image/png',
-  'jpg': 'image/jpeg',
-  'jpeg': 'image/jpeg',
-  'gif': 'image/gif',
-  'bmp': 'image/bmp',
-  'webp': 'image/webp',
-  'tiff': 'image/tiff',
-  'tif': 'image/tiff',
-  'svg': 'image/svg+xml',
-  'emf': 'image/emf',
-  'wmf': 'image/wmf'
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  bmp: 'image/bmp',
+  webp: 'image/webp',
+  tiff: 'image/tiff',
+  tif: 'image/tiff',
+  svg: 'image/svg+xml',
+  emf: 'image/emf',
+  wmf: 'image/wmf'
 }
 
 const IMAGE_MAGIC_NUMBERS: Array<{ bytes: number[]; type: string }> = [
@@ -31,7 +31,7 @@ const IMAGE_MAGIC_NUMBERS: Array<{ bytes: number[]; type: string }> = [
   { bytes: [0xFF, 0xD8, 0xFF], type: 'image/jpeg' },
   { bytes: [0x47, 0x49, 0x46, 0x38], type: 'image/gif' },
   { bytes: [0x42, 0x4D], type: 'image/bmp' },
-  { bytes: [0x52, 0x49, 0x46, 0x46], type: 'image/webp' }, // RIFF header (needs further check for WEBP)
+  { bytes: [0x52, 0x49, 0x46, 0x46], type: 'image/webp' }
 ]
 
 export function getFileTypeInfo(filename: string): FileTypeInfo | null {

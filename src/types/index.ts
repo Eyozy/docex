@@ -1,5 +1,3 @@
-// 类型定义
-
 export interface ExtractedImage {
   id: string
   name: string
@@ -8,7 +6,6 @@ export interface ExtractedImage {
   size: number
 }
 
-// Worker 消息类型
 export type WorkerRequest = {
   type: 'extract'
   file: File
@@ -19,9 +16,9 @@ export type WorkerResponse =
   | { type: 'image'; data: ArrayBuffer; name: string; mimeType: string }
   | { type: 'complete'; total: number }
   | { type: 'error'; message: string }
+  | { type: 'warning'; message: string }
 
-// 支持的文件类型
-export type SupportedFileType = 'docx' | 'xlsx' | 'pptx' | 'key' | 'pages' | 'numbers'
+export type SupportedFileType = 'docx' | 'xlsx' | 'pptx' | 'key' | 'pages' | 'numbers' | 'epub' | 'mobi' | 'azw3'
 
 export interface FileTypeInfo {
   extension: SupportedFileType

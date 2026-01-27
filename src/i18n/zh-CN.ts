@@ -8,29 +8,29 @@ export default {
   },
   hero: {
     badge: '100% 本地私密处理',
-    title: '从任意文档中',
+    title: '从文档和电子书中',
     titleHighlight: '提取原始图片',
-    description: '高质量资源提取，100% 在浏览器本地完成。您的文件永不离开设备，确保最大隐私和速度。'
+    description: '浏览器本地处理，文件永不离开设备。'
   },
   dropzone: {
-    title: '拖拽文档到此处',
+    title: '拖拽文件到此处',
     drop: '释放以上传',
-    description: '支持多种主流办公文档格式',
+    description: '或点击下方按钮选择',
     button: '选择文件',
-    processing: '正在处理...'
+    processing: '处理中...'
   },
   features: {
     privacy: {
       title: '隐私优先',
-      description: '本地处理确保数据安全。您的文件永不上传到任何服务器。'
+      description: '本地处理，文件永不离开设备。'
     },
     quality: {
       title: '无损质量',
-      description: '以原始分辨率提取源图片，无重压缩或伪影。'
+      description: '原始分辨率，无重压缩。'
     },
     speed: {
       title: '即时处理',
-      description: '由客户端技术驱动，直接在浏览器中获得近乎即时的结果。'
+      description: '浏览器内直接获取结果。'
     }
   },
   gallery: {
@@ -61,5 +61,9 @@ export default {
     processing: '处理图片中...',
     finishing: '即将完成...',
     complete: '提取完成'
+  },
+  warning: {
+    drm: '检测到 DRM 保护。请先移除 DRM 再提取图片。',
+    noImages: '未能从文档中提取到图片。'
   }
 }

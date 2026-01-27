@@ -1,14 +1,18 @@
-// useExtractor: Core state management and Worker communication
-
 import { ref, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useToast } from '@/composables/useToast'
 import type { ExtractedImage, WorkerResponse } from '@/types'
 import ExtractorWorker from '@/workers/extractor.worker?worker'
 
+const DRM_WARNING_KEY = 'warning.drm'
+
 export function useExtractor() {
+  const { t } = useI18n()
+  const { addToast } = useToast()
+
   const images = ref<ExtractedImage[]>([])
   const isProcessing = ref(false)
   const progress = ref(0)
-  const error = ref<string | null>(null)
 
   let worker: Worker | null = null
 
@@ -23,10 +27,9 @@ export function useExtractor() {
           progress.value = data.percent
           break
 
-        case 'image':
+        case 'image': {
           const blob = new Blob([data.data], { type: data.mimeType })
           const url = URL.createObjectURL(blob)
-
           images.value.push({
             id: crypto.randomUUID(),
             name: data.name,
@@ -35,24 +38,47 @@ export function useExtractor() {
             size: blob.size
           })
           break
+        }
 
         case 'complete':
           isProcessing.value = false
-          // Delay clearing progress to let user see 100%
           setTimeout(() => {
             progress.value = 0
           }, 500)
+          if (images.value.length === 0) {
+            addToast({
+              message: t('warning.noImages'),
+              type: 'info',
+            })
+          }
           break
 
         case 'error':
-          error.value = data.message
+          addToast({
+            message: data.message,
+            type: 'error',
+          })
           isProcessing.value = false
           break
+
+        case 'warning': {
+          const warningMessage = data.message === DRM_WARNING_KEY || data.message.includes('DRM detected')
+            ? t('warning.drm')
+            : data.message
+          addToast({
+            message: warningMessage,
+            type: 'warning',
+          })
+          break
+        }
       }
     }
 
-    w.onerror = (e) => {
-      error.value = e.message || 'Unknown error during extraction'
+    w.onerror = () => {
+      addToast({
+        message: 'Unknown error during extraction',
+        type: 'error',
+      })
       isProcessing.value = false
     }
 
@@ -61,7 +87,6 @@ export function useExtractor() {
 
   function extractFromFile(file: File) {
     clearImages()
-    error.value = null
     isProcessing.value = true
     progress.value = 0
 
@@ -77,7 +102,6 @@ export function useExtractor() {
     images.value.forEach(img => URL.revokeObjectURL(img.url))
     images.value = []
     progress.value = 0
-    error.value = null
   }
 
   onUnmounted(() => {
@@ -92,7 +116,6 @@ export function useExtractor() {
     images,
     isProcessing,
     progress,
-    error,
     extractFromFile,
     clearImages
   }

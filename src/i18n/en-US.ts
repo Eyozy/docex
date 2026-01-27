@@ -8,29 +8,29 @@ export default {
   },
   hero: {
     badge: '100% PRIVATE & LOCAL',
-    title: 'Extract Raw Images from',
-    titleHighlight: 'Any Document',
-    description: 'High-quality asset extraction performed 100% locally in your browser. Your files never leave your device, ensuring maximum privacy and speed.'
+    title: 'Extract Images from',
+    titleHighlight: 'Documents & eBooks',
+    description: 'Local browser processing. Files never leave your device.'
   },
   dropzone: {
     title: 'Drag and drop your document',
     drop: 'Release to upload',
-    description: 'Supports major office document formats',
+    description: 'Or click button below',
     button: 'Select Files',
     processing: 'Processing...'
   },
   features: {
     privacy: {
       title: 'Privacy First',
-      description: 'Local processing ensures total data security. Your files are never uploaded to any server.'
+      description: 'Local processing, files never uploaded.'
     },
     quality: {
       title: 'Lossless Quality',
-      description: 'Extracts the original source images at full resolution without re-compression or artifacts.'
+      description: 'Original resolution, no compression.'
     },
     speed: {
       title: 'Instant Processing',
-      description: 'Powered by client-side technology for near-instant results directly in your browser.'
+      description: 'Direct results in your browser.'
     }
   },
   gallery: {
@@ -61,5 +61,9 @@ export default {
     processing: 'Processing images...',
     finishing: 'Almost done...',
     complete: 'Extraction complete'
+  },
+  warning: {
+    drm: 'DRM detected. Please remove DRM before extracting images.',
+    noImages: 'No images were extracted from document.'
   }
 }
