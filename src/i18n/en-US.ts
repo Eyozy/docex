@@ -37,6 +37,8 @@ export default {
     title: 'Extracted Images',
     count: '{count} images',
     downloadAll: 'Download All',
+    downloadSuccess: 'All images downloaded successfully',
+    downloadError: 'Failed to download images',
     downloading: 'Packing... {percent}%',
     clear: 'Clear',
     empty: 'No images yet'

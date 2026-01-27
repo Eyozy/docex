@@ -62,11 +62,12 @@
 </template>
 
 <script setup lang="ts">
+import { onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ExtractedImage } from '@/types'
 import { formatSize, getExtension } from '@/utils/format'
 
-defineProps<{
+const props = defineProps<{
   image: ExtractedImage
 }>()
 
@@ -76,4 +77,11 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+// 组件卸载时释放 Blob URL 防止内存泄漏
+onUnmounted(() => {
+  if (props.image.url && props.image.url.startsWith('blob:')) {
+    URL.revokeObjectURL(props.image.url)
+  }
+})
 </script>

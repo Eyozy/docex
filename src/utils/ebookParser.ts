@@ -5,6 +5,9 @@ const DRM_SIGNATURES = [
   new Uint8Array([0x50, 0x4B]),
 ]
 
+// 防止内存溢出，限制最大提取图片数量
+const MAX_IMAGES = 1000
+
 export function detectMobiDRM(buffer: ArrayBuffer): boolean {
   const view = new Uint8Array(buffer)
 
@@ -45,7 +48,7 @@ export function parseMobiImages(buffer: ArrayBuffer): ArrayBuffer[] {
     new Uint8Array([0x47, 0x49, 0x46, 0x38]),
   ]
 
-  for (let i = 0; i < view.length - 100; i++) {
+  for (let i = 0; i < view.length - 100 && images.length < MAX_IMAGES; i++) {
     for (const sig of imageSignatures) {
       if (checkMagic(view.subarray(i, i + sig.length), sig)) {
         const imageBuffer = extractImageAtOffset(buffer, i)
@@ -115,6 +118,12 @@ function extractPng(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
 
   while (pos < view.length - 12) {
     const chunkLength = (view[pos] << 24) | (view[pos + 1] << 16) | (view[pos + 2] << 8) | view[pos + 3]
+
+    // 防止恶意大 chunk 导致越界
+    if (chunkLength > 100_000_000 || pos + 12 + chunkLength > view.length) {
+      break
+    }
+
     const chunkType = view.subarray(pos + 4, pos + 8)
 
     if (checkMagic(chunkType, IEND_SIG)) {
@@ -129,6 +138,10 @@ function extractPng(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
 
 function extractGif(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
   const view = new Uint8Array(buffer)
+
+  // 边界检查：GIF 头部至少需要 11 字节
+  if (offset + 10 >= view.length) return null
+
   let endOffset = offset + 6
 
   const packedField = view[offset + 10]
@@ -144,24 +157,34 @@ function extractGif(buffer: ArrayBuffer, offset: number): ArrayBuffer | null {
 
     if (view[endOffset] === 0x21) {
       endOffset += 2
-      while (view[endOffset] !== 0x00) {
-        endOffset += 1 + view[endOffset]
+      while (endOffset < view.length && view[endOffset] !== 0x00) {
+        const blockSize = view[endOffset]
+        if (endOffset + 1 + blockSize >= view.length) break
+        endOffset += 1 + blockSize
       }
-      endOffset++
+      if (endOffset < view.length) endOffset++
     } else if (view[endOffset] === 0x2C) {
       endOffset += 10
-      const imagePacked = view[endOffset - 1]
-      const hasLocalColorTable = (imagePacked & 0x80) !== 0
-      const localColorTableSize = hasLocalColorTable ? 3 * (1 << ((imagePacked & 0x07) + 1)) : 0
-      endOffset += localColorTableSize
-      endOffset++
-      while (view[endOffset] !== 0x00) {
-        endOffset += 1 + view[endOffset]
+      // 边界检查：确保有足够字节访问 imagePacked
+      if (endOffset < view.length) {
+        const imagePacked = view[endOffset]
+        const hasLocalColorTable = (imagePacked & 0x80) !== 0
+        const localColorTableSize = hasLocalColorTable ? 3 * (1 << ((imagePacked & 0x07) + 1)) : 0
+        endOffset += localColorTableSize
+        endOffset++
+        while (endOffset < view.length && view[endOffset] !== 0x00) {
+          const blockSize = view[endOffset]
+          if (endOffset + 1 + blockSize >= view.length) break
+          endOffset += 1 + blockSize
+        }
+        if (endOffset < view.length) endOffset++
       }
-      endOffset++
     } else {
       endOffset++
     }
+
+    // 防止无限循环的安全检查
+    if (endOffset > view.length * 2) break
   }
 
   return null

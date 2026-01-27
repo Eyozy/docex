@@ -128,6 +128,7 @@
       :image="previewImage"
       @close="closePreview"
     />
+    <ToastContainer />
   </div>
 </template>
 
@@ -141,6 +142,7 @@ import DropZone from '@/components/DropZone.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ResultGallery from '@/components/ResultGallery.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
+import ToastContainer from '@/components/ToastContainer.vue'
 
 const { t } = useI18n()
 const { images, isProcessing, progress, extractFromFile, clearImages } = useExtractor()

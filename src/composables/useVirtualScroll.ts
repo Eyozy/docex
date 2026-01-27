@@ -10,6 +10,10 @@ interface VirtualScrollOptions<T> {
   buffer?: number      // 缓冲行数
 }
 
+// 滚动事件节流，避免频繁更新
+let lastScrollTime = 0
+const SCROLL_THROTTLE = 16 // 60fps
+
 export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
   const { containerRef, items, itemHeight, columns, buffer = 2 } = options
 
@@ -55,20 +59,32 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
   })
 
   /**
-   * 处理滚动事件
+   * 处理滚动事件（节流优化）
    */
   function handleScroll(e: Event) {
+    const now = Date.now()
+    if (now - lastScrollTime < SCROLL_THROTTLE) {
+      return
+    }
+    lastScrollTime = now
+
     const target = e.target as HTMLElement
     scrollTop.value = target.scrollTop
   }
 
   /**
-   * 更新容器高度
+   * 更新容器高度（防抖优化）
    */
+  let resizeTimeout: ReturnType<typeof setTimeout> | null = null
   function updateContainerHeight() {
-    if (containerRef.value) {
-      containerHeight.value = containerRef.value.clientHeight
+    if (resizeTimeout) {
+      clearTimeout(resizeTimeout)
     }
+    resizeTimeout = setTimeout(() => {
+      if (containerRef.value) {
+        containerHeight.value = containerRef.value.clientHeight
+      }
+    }, 100)
   }
 
   let resizeObserver: ResizeObserver | null = null
@@ -84,6 +100,9 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
   })
 
   onUnmounted(() => {
+    if (resizeTimeout) {
+      clearTimeout(resizeTimeout)
+    }
     if (resizeObserver) {
       resizeObserver.disconnect()
     }

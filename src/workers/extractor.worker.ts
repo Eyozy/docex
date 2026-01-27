@@ -98,38 +98,45 @@ function getMimeType(path: string): string {
 const MAX_FILE_SIZE = 200 * 1024 * 1024
 
 async function extractImagesFromEbook(file: File, ext: string): Promise<void> {
-  const buffer = await file.arrayBuffer()
+  try {
+    const buffer = await file.arrayBuffer()
 
-  const detectDRM = ext === 'mobi' ? detectMobiDRM : detectAZW3DRM
-  const parseImages = ext === 'mobi' ? parseMobiImages : parseAZW3Images
+    const detectDRM = ext === 'mobi' ? detectMobiDRM : detectAZW3DRM
+    const parseImages = ext === 'mobi' ? parseMobiImages : parseAZW3Images
 
-  if (detectDRM(buffer)) {
-    self.postMessage({ type: 'warning', message: 'DRM detected. Please remove DRM before extracting images.' })
-    return
-  }
-
-  const imageBuffers = parseImages(buffer)
-  const total = imageBuffers.length
-  let processed = 0
-
-  for (const imgBuffer of imageBuffers) {
-    const detected = detectImageType(imgBuffer)
-    if (detected) {
-      processed++
-      self.postMessage({
-        type: 'image',
-        data: imgBuffer,
-        name: `image_${processed}.${detected.ext}`,
-        mimeType: detected.type
-      }, [imgBuffer])
+    if (detectDRM(buffer)) {
+      self.postMessage({ type: 'warning', message: 'DRM detected. Please remove DRM before extracting images.' })
+      return
     }
 
-    if (total > 0 && (processed % 5 === 0 || processed === total)) {
-      self.postMessage({ type: 'progress', percent: Math.round((processed / total) * 100) })
-    }
-  }
+    const imageBuffers = parseImages(buffer)
+    const total = imageBuffers.length
+    let processed = 0
 
-  self.postMessage({ type: 'complete', total: processed })
+    for (const imgBuffer of imageBuffers) {
+      const detected = detectImageType(imgBuffer)
+      if (detected) {
+        processed++
+        self.postMessage({
+          type: 'image',
+          data: imgBuffer,
+          name: `image_${processed}.${detected.ext}`,
+          mimeType: detected.type
+        }, [imgBuffer])
+      }
+
+      if (total > 0 && (processed % 5 === 0 || processed === total)) {
+        self.postMessage({ type: 'progress', percent: Math.round((processed / total) * 100) })
+      }
+    }
+
+    self.postMessage({ type: 'complete', total: processed })
+  } catch (error) {
+    self.postMessage({
+      type: 'error',
+      message: `Failed to parse ${ext.toUpperCase()} file: ${error instanceof Error ? error.message : 'Unknown error'}`
+    })
+  }
 }
 
 async function extractImages(file: File): Promise<void> {

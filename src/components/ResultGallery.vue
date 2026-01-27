@@ -89,6 +89,7 @@ import { useI18n } from 'vue-i18n'
 import type { ExtractedImage } from '@/types'
 import { useVirtualScroll } from '@/composables/useVirtualScroll'
 import { downloadImage, downloadAllAsZip } from '@/utils/download'
+import { useToast } from '@/composables/useToast'
 import ImageCard from './ImageCard.vue'
 
 const props = defineProps<{
@@ -101,6 +102,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { addToast } = useToast()
 
 const containerRef = ref<HTMLElement | null>(null)
 const isDownloading = ref(false)
@@ -159,6 +161,12 @@ async function handleDownloadAll() {
   try {
     await downloadAllAsZip(props.images, (percent) => {
       downloadProgress.value = percent
+    })
+    addToast({ message: t('gallery.downloadSuccess'), type: 'success' })
+  } catch (error) {
+    addToast({
+      message: error instanceof Error ? error.message : t('gallery.downloadError'),
+      type: 'error'
     })
   } finally {
     isDownloading.value = false

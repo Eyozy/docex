@@ -37,6 +37,8 @@ export default {
     title: '提取的图片',
     count: '{count} 张图片',
     downloadAll: '下载全部',
+    downloadSuccess: '所有图片下载成功',
+    downloadError: '图片下载失败',
     downloading: '打包中... {percent}%',
     clear: '清空',
     empty: '暂无图片'
