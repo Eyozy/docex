@@ -19,15 +19,15 @@ export default {
   features: {
     privacy: {
       title: 'Privacy First',
-      description: 'Local processing, files never uploaded.'
+      description: 'Everything stays on your device.'
     },
     quality: {
       title: 'Lossless Quality',
-      description: 'Original resolution, no compression.'
+      description: 'Original images, zero compression.'
     },
     speed: {
       title: 'Instant Processing',
-      description: 'Direct results in your browser.'
+      description: 'Results in seconds, not minutes.'
     }
   },
   gallery: {

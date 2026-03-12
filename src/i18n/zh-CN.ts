@@ -19,15 +19,15 @@ export default {
   features: {
     privacy: {
       title: '隐私优先',
-      description: '本地处理，文件永不离开设备。'
+      description: '所有数据留在本地设备。'
     },
     quality: {
       title: '无损质量',
-      description: '原始分辨率，无重压缩。'
+      description: '原始图片，零压缩损失。'
     },
     speed: {
       title: '即时处理',
-      description: '浏览器内直接获取结果。'
+      description: '秒级完成，无需等待。'
     }
   },
   gallery: {
