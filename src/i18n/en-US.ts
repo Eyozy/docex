@@ -1,9 +1,6 @@
 export default {
   header: {
     title: 'DocExtractor',
-    docs: 'Documentation',
-    privacy: 'Privacy',
-    guide: 'Guide',
     github: 'GitHub'
   },
   hero: {
@@ -35,7 +32,6 @@ export default {
   },
   gallery: {
     title: 'Extracted Images',
-    count: '{count} images',
     downloadAll: 'Download All',
     downloadSuccess: 'All images downloaded successfully',
     downloadError: 'Failed to download images',
@@ -45,7 +41,6 @@ export default {
   },
   footer: {
     copyright: '© 2026',
-    status: 'ALL SYSTEMS LOCAL',
     inspired: 'Inspired by ',
     appinn: 'Appinn'
   },
@@ -61,8 +56,7 @@ export default {
     extracting: 'Extracting images...',
     reading: 'Reading document...',
     processing: 'Processing images...',
-    finishing: 'Almost done...',
-    complete: 'Extraction complete'
+    finishing: 'Almost done...'
   },
   warning: {
     drm: 'DRM detected. Please remove DRM before extracting images.',

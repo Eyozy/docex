@@ -1,7 +1,7 @@
 {
   "name": "docex",
   "version": "1.0.0",
-  "description": "Privacy-first document image extractor running entirely in the browser. Supports DOCX, PPTX, XLSX, and iWork formats.",
+  "description": "Browser-based document image extractor with zero server upload",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "jszip": "^3.10.1",
     "vue": "^3.4.21",
-    "vue-i18n": "^9.10.2",
-    "jszip": "^3.10.1"
+    "vue-i18n": "^9.10.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
@@ -19,7 +19,7 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.4.2",
-    "vite": "^5.1.6",
+    "vite": "^8.0.0",
     "vue-tsc": "^2.0.6"
   }
 }

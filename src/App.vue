@@ -86,24 +86,7 @@
 
       <footer class="py-8 mt-auto border-t border-surface-200 dark:border-surface-800">
         <div class="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 text-sm text-surface-400 dark:text-surface-500">
-          <div class="hidden sm:flex w-full items-center justify-between">
-            <span>
-              {{ t('footer.copyright') }}
-              <span class="mx-1.5">•</span>
-              <span class="text-surface-600 dark:text-surface-400">{{ t('header.title') }}</span>
-            </span>
-            <span>
-              {{ t('footer.inspired') }}
-              <a
-                href="https://meta.appinn.net/t/topic/79962"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="link-underline text-surface-500 dark:text-surface-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-              >{{ t('footer.appinn') }}</a>
-            </span>
-          </div>
-
-          <div class="flex sm:hidden flex-col items-center gap-2 text-center">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
             <span>
               {{ t('footer.copyright') }}
               <span class="mx-1.5">•</span>

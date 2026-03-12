@@ -1,25 +1,17 @@
-// useTheme: Dark mode management (global singleton)
-
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 type Theme = 'light' | 'dark'
 
-const theme = ref<Theme>('light')
 const isDark = ref(false)
 let initialized = false
 
 function applyTheme(dark: boolean) {
   isDark.value = dark
   if (typeof document === 'undefined') return
-  if (dark) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
+  document.documentElement.classList.toggle('dark', dark)
 }
 
 function setTheme(newTheme: Theme) {
-  theme.value = newTheme
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem('theme', newTheme)
   }
@@ -27,11 +19,7 @@ function setTheme(newTheme: Theme) {
 }
 
 function toggleTheme() {
-  setTheme(theme.value === 'light' ? 'dark' : 'light')
-}
-
-function isTheme(value: string | null): value is Theme {
-  return value === 'light' || value === 'dark'
+  setTheme(isDark.value ? 'light' : 'dark')
 }
 
 function initTheme() {
@@ -39,10 +27,9 @@ function initTheme() {
   initialized = true
 
   const stored = localStorage.getItem('theme')
-  if (isTheme(stored)) {
-    theme.value = stored
+  if (stored === 'light' || stored === 'dark') {
+    applyTheme(stored === 'dark')
   }
-  applyTheme(theme.value === 'dark')
 }
 
 if (typeof window !== 'undefined') {
@@ -53,7 +40,7 @@ export function useTheme() {
   initTheme()
 
   return {
-    theme,
+    theme: computed(() => isDark.value ? 'dark' : 'light'),
     isDark,
     setTheme,
     toggleTheme

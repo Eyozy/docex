@@ -100,7 +100,6 @@ const MAX_FILE_SIZE = 200 * 1024 * 1024
 async function extractImagesFromEbook(file: File, ext: string): Promise<void> {
   try {
     const buffer = await file.arrayBuffer()
-
     const detectDRM = ext === 'mobi' ? detectMobiDRM : detectAZW3DRM
     const parseImages = ext === 'mobi' ? parseMobiImages : parseAZW3Images
 
@@ -111,26 +110,24 @@ async function extractImagesFromEbook(file: File, ext: string): Promise<void> {
 
     const imageBuffers = parseImages(buffer)
     const total = imageBuffers.length
-    let processed = 0
 
-    for (const imgBuffer of imageBuffers) {
+    imageBuffers.forEach((imgBuffer, index) => {
       const detected = detectImageType(imgBuffer)
       if (detected) {
-        processed++
         self.postMessage({
           type: 'image',
           data: imgBuffer,
-          name: `image_${processed}.${detected.ext}`,
+          name: `image_${index + 1}.${detected.ext}`,
           mimeType: detected.type
         }, [imgBuffer])
-      }
 
-      if (total > 0 && (processed % 5 === 0 || processed === total)) {
-        self.postMessage({ type: 'progress', percent: Math.round((processed / total) * 100) })
+        if (total > 0 && ((index + 1) % 5 === 0 || index + 1 === total)) {
+          self.postMessage({ type: 'progress', percent: Math.round(((index + 1) / total) * 100) })
+        }
       }
-    }
+    })
 
-    self.postMessage({ type: 'complete', total: processed })
+    self.postMessage({ type: 'complete', total: imageBuffers.length })
   } catch (error) {
     self.postMessage({
       type: 'error',
@@ -201,39 +198,28 @@ async function extractImages(file: File): Promise<void> {
       const fileData = content.files[path]
       const buffer = await fileData.async('arraybuffer')
 
-      if (isIWork && buffer.byteLength < MIN_IMAGE_SIZE) {
+      if (isIWork && buffer.byteLength < MIN_IMAGE_SIZE) continue
+
+      const detected = detectImageType(buffer)
+      const mimeType = detected?.type || (isImageFile(path) ? getMimeType(path) : '')
+      const detectedExt = detected?.ext || path.split('.').pop()?.toLowerCase() || ''
+
+      if (!mimeType || mimeType === 'application/octet-stream') {
         processed++
         continue
       }
 
-      let mimeType = ''
-      let detectedExt = ''
-
-      const detected = detectImageType(buffer)
-      if (detected) {
-        mimeType = detected.type
-        detectedExt = detected.ext
-      } else {
-        if (isImageFile(path)) {
-          mimeType = getMimeType(path)
-          detectedExt = path.split('.').pop()?.toLowerCase() || ''
-        }
-      }
-
       let fileName = path.split('/').pop() || `image_${processed}`
-
       if (detectedExt && !fileName.includes('.')) {
-         fileName = `${fileName}.${detectedExt}`
+        fileName = `${fileName}.${detectedExt}`
       }
 
-      if (mimeType && mimeType !== 'application/octet-stream') {
-        self.postMessage({
-          type: 'image',
-          data: buffer,
-          name: fileName,
-          mimeType
-        }, [buffer])
-      }
+      self.postMessage({
+        type: 'image',
+        data: buffer,
+        name: fileName,
+        mimeType
+      }, [buffer])
 
       processed++
 

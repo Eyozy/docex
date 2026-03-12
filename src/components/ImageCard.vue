@@ -17,29 +17,26 @@
       </p>
     </div>
 
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-3 md:flex sm:hidden">
-      <div class="flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-200">
-        <button
-          @click.stop="emit('preview', image)"
-          class="w-10 h-10 rounded-full bg-white text-zinc-900 flex items-center justify-center hover:bg-zinc-100 hover:scale-110 transition-all duration-200 shadow-lg"
-          :title="t('card.preview')"
-        >
-          <span class="material-symbols-outlined text-xl">visibility</span>
-        </button>
-
-        <button
-          @click.stop="emit('download', image)"
-          class="h-10 px-4 rounded-full bg-primary-600 text-white flex items-center gap-2 font-medium hover:bg-primary-500 hover:scale-105 transition-all duration-200 shadow-lg"
-          :title="t('card.download')"
-        >
-          <span class="material-symbols-outlined text-xl">download</span>
-          <span class="text-xs">{{ formatSize(image.size) }}</span>
-        </button>
-      </div>
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2 md:flex sm:hidden">
+      <button
+        @click.stop="emit('preview', image)"
+        class="w-10 h-10 rounded-full bg-white text-zinc-900 flex items-center justify-center hover:bg-zinc-100 hover:scale-110 transition-all duration-200 shadow-lg"
+        :title="t('card.preview')"
+      >
+        <span class="material-symbols-outlined text-xl">visibility</span>
+      </button>
+      <button
+        @click.stop="emit('download', image)"
+        class="h-10 px-4 rounded-full bg-primary-600 text-white flex items-center gap-2 font-medium hover:bg-primary-500 hover:scale-105 transition-all duration-200 shadow-lg"
+        :title="t('card.download')"
+      >
+        <span class="material-symbols-outlined text-xl">download</span>
+        <span class="text-xs">{{ formatSize(image.size) }}</span>
+      </button>
     </div>
 
     <div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 via-black/70 to-transparent sm:flex md:hidden z-20">
-      <div class="flex items-center justify-center gap-2">
+      <div class="flex items-center gap-2 w-full">
         <button
           @click.stop="emit('preview', image)"
           class="w-9 h-9 rounded-full bg-white/90 text-zinc-900 flex items-center justify-center hover:bg-white transition-all duration-200 shadow-md"
@@ -47,7 +44,6 @@
         >
           <span class="material-symbols-outlined text-lg">visibility</span>
         </button>
-
         <button
           @click.stop="emit('download', image)"
           class="flex-1 h-9 rounded-full bg-primary-600 text-white flex items-center justify-center gap-1.5 font-medium hover:bg-primary-700 transition-all duration-200 shadow-md"
@@ -62,12 +58,11 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ExtractedImage } from '@/types'
 import { formatSize, getExtension } from '@/utils/format'
 
-const props = defineProps<{
+defineProps<{
   image: ExtractedImage
 }>()
 
@@ -77,10 +72,4 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-
-onUnmounted(() => {
-  if (props.image.url && props.image.url.startsWith('blob:')) {
-    URL.revokeObjectURL(props.image.url)
-  }
-})
 </script>

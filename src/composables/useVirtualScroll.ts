@@ -1,5 +1,3 @@
-// useVirtualScroll: Virtual scroll logic
-
 import { ref, computed, onMounted, onUnmounted, type Ref } from 'vue'
 
 interface VirtualScrollOptions<T> {
@@ -9,9 +7,6 @@ interface VirtualScrollOptions<T> {
   columns: Ref<number>
   buffer?: number
 }
-
-let lastScrollTime = 0
-const SCROLL_THROTTLE = 16
 
 export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
   const { containerRef, items, itemHeight, columns, buffer = 2 } = options
@@ -45,22 +40,19 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
     return visibleRange.value.startRow * itemHeight
   })
 
+  let rafId: number | null = null
   function handleScroll(e: Event) {
-    const now = Date.now()
-    if (now - lastScrollTime < SCROLL_THROTTLE) {
-      return
-    }
-    lastScrollTime = now
-
-    const target = e.target as HTMLElement
-    scrollTop.value = target.scrollTop
+    if (rafId) return
+    rafId = requestAnimationFrame(() => {
+      const target = e.target as HTMLElement
+      scrollTop.value = target.scrollTop
+      rafId = null
+    })
   }
 
   let resizeTimeout: ReturnType<typeof setTimeout> | null = null
   function updateContainerHeight() {
-    if (resizeTimeout) {
-      clearTimeout(resizeTimeout)
-    }
+    if (resizeTimeout) clearTimeout(resizeTimeout)
     resizeTimeout = setTimeout(() => {
       if (containerRef.value) {
         containerHeight.value = containerRef.value.clientHeight
@@ -72,7 +64,6 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
 
   onMounted(() => {
     updateContainerHeight()
-
     if (containerRef.value) {
       resizeObserver = new ResizeObserver(updateContainerHeight)
       resizeObserver.observe(containerRef.value)
@@ -80,12 +71,9 @@ export function useVirtualScroll<T>(options: VirtualScrollOptions<T>) {
   })
 
   onUnmounted(() => {
-    if (resizeTimeout) {
-      clearTimeout(resizeTimeout)
-    }
-    if (resizeObserver) {
-      resizeObserver.disconnect()
-    }
+    if (resizeTimeout) clearTimeout(resizeTimeout)
+    if (rafId) cancelAnimationFrame(rafId)
+    resizeObserver?.disconnect()
   })
 
   return {

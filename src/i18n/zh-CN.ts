@@ -1,9 +1,6 @@
 export default {
   header: {
     title: 'DocExtractor',
-    docs: '文档',
-    privacy: '隐私',
-    guide: '指南',
     github: 'GitHub'
   },
   hero: {
@@ -35,7 +32,6 @@ export default {
   },
   gallery: {
     title: '提取的图片',
-    count: '{count} 张图片',
     downloadAll: '下载全部',
     downloadSuccess: '所有图片下载成功',
     downloadError: '图片下载失败',
@@ -45,7 +41,6 @@ export default {
   },
   footer: {
     copyright: '© 2026',
-    status: '全部本地处理',
     inspired: '灵感来自',
     appinn: '小众软件'
   },
@@ -61,8 +56,7 @@ export default {
     extracting: '正在提取图片...',
     reading: '读取文档中...',
     processing: '处理图片中...',
-    finishing: '即将完成...',
-    complete: '提取完成'
+    finishing: '即将完成...'
   },
   warning: {
     drm: '检测到 DRM 保护。请先移除 DRM 再提取图片。',
